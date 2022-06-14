@@ -16,10 +16,10 @@ class Post(BaseModel):
 def read_root():
     return {"hello": "welcome to my api"}
 
-@app.post("/createposts")
-def create_posts(new_post: Post):
-    print(dict(new_post))
+@app.post("/posts")
+def create_posts(post: Post):
+    print(dict(post))
     return {
-        "data": new_post
+        "data": post
     }
 
