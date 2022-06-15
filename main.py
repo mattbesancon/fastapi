@@ -30,7 +30,7 @@ def create_posts(post: Post):
 
 @app.get("/posts/{id}")
 def get_post(id):
-    post_id = list(filter(None, [x if x["id"] == int(id) else None for x in my_posts]))
+    post_id = [x for x in my_posts if x["id"] == int(id)]
     return {
         "data": post_id
     }
