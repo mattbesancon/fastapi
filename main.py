@@ -13,11 +13,14 @@ class Post(BaseModel):
     published: bool = True
     rating: Optional[int] = None
 
+
 my_posts = [{"title": "title 1", "content": "content 1", "id": 1}, {"title": "title 2", "content": "content 2", "id": 2}]    
+
 
 @app.get("/")
 def get_posts():
     return {"data": my_posts}
+
 
 @app.post("/posts", status_code=201)
 def create_posts(post: Post):
@@ -27,6 +30,7 @@ def create_posts(post: Post):
     return {
         "data": post_dict
     }
+
 
 @app.get("/posts/{id}")
 def get_post(id: int):
@@ -39,6 +43,7 @@ def get_post(id: int):
         "data": post_id
     }
 
+
 @app.delete("/posts/{id}", status_code=204)
 def delete_post(id: int):
     post_index = [i for i, el in enumerate(my_posts) if el["id"] == id]
@@ -48,4 +53,19 @@ def delete_post(id: int):
     else:
         my_posts.pop(post_index[0])
         return Response(status_code=204)
+
+
+@app.put("/posts/{id}")
+def update_post(id: int, post: Post):
+    post_index = [i for i, el in enumerate(my_posts) if el["id"] == id]
+    
+    if not post_index:
+        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
+
+    post_dict = (dict(post))
+    post_dict["id"] = id
+    my_posts[post_index] = post_dict
+    return {
+        "data": post_dict
+    }
 
