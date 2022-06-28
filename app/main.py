@@ -64,15 +64,12 @@ def delete_post(id: int):
 
 @app.put("/posts/{id}")
 def update_post(id: int, post: Post):
-    post_index = [i for i, el in enumerate(my_posts) if el["id"] == id]
-    
-    if not post_index:
+    cur.execute("UPDATE posts SET title = %s, content = %s WHERE ID = %s RETURNING *", (post.title, post.content, id))
+    updated_post = cur.fetchone()
+    if not updated_post:
         raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
 
-    post_dict = (dict(post))
-    post_dict["id"] = id
-    my_posts[post_index] = post_dict
     return {
-        "data": post_dict
+        "data": updated_post
     }
 
