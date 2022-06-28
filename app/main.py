@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from typing import Optional
 from random import randrange
 import psycopg2
-from psycopg2.extras import RealDictCursor
 
 app = FastAPI()
 
@@ -16,7 +15,7 @@ class Post(BaseModel):
 
 
 try:
-    conn = psycopg2.connect(host="localhost:5433", database="fastapi", user="postgres", cursor_factory="RealDictCursor")
+    conn = psycopg2.connect(host="localhost", database="fastapi", user="postgres")
     cur = conn.cursor()
     cur.execute("SELECT * FROM posts")
     records = cur.fetchall()
