@@ -18,27 +18,24 @@ try:
     conn = psycopg2.connect(host="localhost", database="fastapi", user="postgres")
     cur = conn.cursor()
     cur.execute("SELECT * FROM posts")
-    records = cur.fetchall()
-    print(records)
+    posts = cur.fetchall()
+    print(posts)
 except Exception as error:
     print("cannot connect to db, error:", error)
 
 
-my_posts = [{"title": "title 1", "content": "content 1", "id": 1}, {"title": "title 2", "content": "content 2", "id": 2}]    
-
-
 @app.get("/")
 def get_posts():
-    return {"data": my_posts}
+    return {"data": posts}
 
 
 @app.post("/posts", status_code=201)
 def create_posts(post: Post):
-    post_dict = (dict(post))
-    post_dict["id"] = randrange(10000000)
-    my_posts.append(post_dict)
+    cur.execute("INSERT INTO POSTS (title, content) VALUES (%s, %s) RETURNING *", (post.title, post.content))
+    new_post = cur.fetchone()
+    conn.commit()
     return {
-        "data": post_dict
+        "data": new_post
     }
 
 
