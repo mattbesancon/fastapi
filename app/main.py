@@ -43,6 +43,10 @@ def create_posts(post: Post):
 def get_post(id: int):
     cur.execute("SELECT * FROM POSTS where ID = %s", (id,))
     post = cur.fetchone()
+
+    if not post:
+        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
+
     return {
         "data": post
     }
