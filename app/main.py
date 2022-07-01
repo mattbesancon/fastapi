@@ -1,12 +1,13 @@
 from hashlib import new
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
 from random import randrange
 import psycopg2
-from . import crud, models, schemas
+from . import models
 from .database import SessionLocal, engine
+from sqlalchemy.orm import Session
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -36,8 +37,12 @@ except Exception as error:
 
 
 @app.get("/")
-def get_posts():
-    return {"data": posts}
+def get_posts(db: Session = Depends(get_db)):
+    posts = db.query(models.Post).all()
+    return {
+        "data": posts
+    }
+
 
 
 @app.post("/posts", status_code=201)
@@ -51,16 +56,12 @@ def create_posts(post: Post):
 
 
 @app.get("/posts/{id}")
-def get_post(id: int):
-    cur.execute("SELECT * FROM POSTS where ID = %s", (id,))
-    post = cur.fetchone()
-
-    if not post:
-        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
-
+def get_post(id: int, db: Session = Depends(get_db)):
+    post = db.query(models.Post).filter(models.Post.id == id).first()
     return {
         "data": post
     }
+
 
 
 @app.delete("/posts/{id}", status_code=204)
