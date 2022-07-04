@@ -44,15 +44,16 @@ def get_posts(db: Session = Depends(get_db)):
     }
 
 
-
 @app.post("/posts", status_code=201)
-def create_posts(post: Post):
-    cur.execute("INSERT INTO POSTS (title, content) VALUES (%s, %s) RETURNING *", (post.title, post.content))
-    new_post = cur.fetchone()
-    conn.commit()
+def create_posts(post: Post, db: Session = Depends(get_db)):
+    db_post = models.Post(title=post.title, content=post.content)
+    db.add(db_post)
+    db.commit()
+    db.refresh(db_post)
     return {
-        "data": new_post
+        "data": db_post
     }
+
 
 
 @app.get("/posts/{id}")
