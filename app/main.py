@@ -1,5 +1,5 @@
 from hashlib import new
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
@@ -65,14 +65,12 @@ def get_post(id: int, db: Session = Depends(get_db)):
 
 
 
-@app.delete("/posts/{id}", status_code=204)
-def delete_post(id: int):
-    cur.execute("DELETE FROM POSTS where ID = %s RETURNING *", (id,))
-    del_post = cur.fetchone()
-    conn.commit()
-    if not del_post:
-        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
-
+@app.delete("/posts/{id}", status_code=204, response_class=Response)
+def delete_post(id: int, db: Session = Depends(get_db)):
+    del_post = db.query(models.Post).filter(models.Post.id == id).first()
+    db.delete(del_post)
+    db.commit()
+    return None
 
 
 @app.put("/posts/{id}")
