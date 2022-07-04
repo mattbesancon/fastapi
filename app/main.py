@@ -54,25 +54,31 @@ def create_posts(post: Post, db: Session = Depends(get_db)):
         "data": db_post
     }
 
-
-
 @app.get("/posts/{id}")
 def get_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
+
+    if not post:
+        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
+
     return {
         "data": post
     }
 
 
-
 @app.delete("/posts/{id}", status_code=204, response_class=Response)
 def delete_post(id: int, db: Session = Depends(get_db)):
     del_post = db.query(models.Post).filter(models.Post.id == id).first()
+
+    if not del_post:
+        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
+
     db.delete(del_post)
     db.commit()
     return None
 
 
+"""
 @app.put("/posts/{id}")
 def update_post(id: int, post: Post):
     cur.execute("UPDATE posts SET title = %s, content = %s WHERE ID = %s RETURNING *", (post.title, post.content, id))
@@ -82,5 +88,21 @@ def update_post(id: int, post: Post):
 
     return {
         "data": updated_post
+    }
+"""
+
+
+@app.put("/posts/{id}")
+def update_post(id: int, post: Post, db: Session = Depends(get_db)):
+
+    post_query = db.query(models.Post).filter(models.Post.id == id)
+
+    if not post_query.first():
+        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
+
+    post_query.update(dict(post))
+    db.commit()
+    return {
+        "data": post_query.first()
     }
 
