@@ -2,10 +2,10 @@ from hashlib import new
 from fastapi import Depends, FastAPI, HTTPException, Response
 from fastapi.params import Body
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from random import randrange
 import psycopg2
-from . import models
+from . import models, schema
 from .database import SessionLocal, engine
 from sqlalchemy.orm import Session
 
@@ -36,7 +36,7 @@ except Exception as error:
     print("cannot connect to db, error:", error)
 
 
-@app.get("/")
+@app.get("/", response_model=List[schema.Post])
 def get_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return {
@@ -44,8 +44,8 @@ def get_posts(db: Session = Depends(get_db)):
     }
 
 
-@app.post("/posts", status_code=201)
-def create_posts(post: Post, db: Session = Depends(get_db)):
+@app.post("/posts", status_code=201, response_model=schema.Post)
+def create_posts(post: schema.PostCreate, db: Session = Depends(get_db)):
     db_post = models.Post(title=post.title, content=post.content)
     db.add(db_post)
     db.commit()
@@ -54,7 +54,7 @@ def create_posts(post: Post, db: Session = Depends(get_db)):
         "data": db_post
     }
 
-@app.get("/posts/{id}")
+@app.get("/posts/{id}", response_model=schema.Post)
 def get_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
 
@@ -78,22 +78,9 @@ def delete_post(id: int, db: Session = Depends(get_db)):
     return None
 
 
-"""
-@app.put("/posts/{id}")
-def update_post(id: int, post: Post):
-    cur.execute("UPDATE posts SET title = %s, content = %s WHERE ID = %s RETURNING *", (post.title, post.content, id))
-    updated_post = cur.fetchone()
-    if not updated_post:
-        raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
 
-    return {
-        "data": updated_post
-    }
-"""
-
-
-@app.put("/posts/{id}")
-def update_post(id: int, post: Post, db: Session = Depends(get_db)):
+@app.put("/posts/{id}", response_model=schema.Post)
+def update_post(id: int, post: schema.PostCreate, db: Session = Depends(get_db)):
 
     post_query = db.query(models.Post).filter(models.Post.id == id)
 
