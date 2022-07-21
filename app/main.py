@@ -93,3 +93,15 @@ def update_post(id: int, post: schema.PostCreate, db: Session = Depends(get_db))
         "data": post_query.first()
     }
 
+
+
+@app.post("/users", status_code=201)
+def create_users(user: schema.UserCreate, db: Session = Depends(get_db)):
+    db_user = models.User(email=user.email, password=user.password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return {
+        "data": db_user
+    }
+
