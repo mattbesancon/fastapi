@@ -126,3 +126,15 @@ def create_users(user: schema.UserCreate, db: Session = Depends(get_db)):
         "data": db_user
     }
 
+
+@app.get("/users/{id}")
+def get_user(id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail=f"the user with id {id} does not exist")
+
+    return {
+        "data": user
+    }
+
