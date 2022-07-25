@@ -1,4 +1,3 @@
-from pydantic import BaseModel
 from fastapi import FastAPI
 import psycopg2
 from . import models
@@ -13,7 +12,6 @@ app = FastAPI()
 
 app.include_router(post.router)
 app.include_router(user.router)
-
 
 
 try:

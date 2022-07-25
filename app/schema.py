@@ -10,6 +10,7 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     pass
 
+
 class Post(PostBase):
     id: int
     created_at: datetime
@@ -25,6 +26,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     pass
+
 
 class User(UserBase):
     id: int

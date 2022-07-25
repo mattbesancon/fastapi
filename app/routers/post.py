@@ -1,5 +1,5 @@
-from fastapi import Depends, HTTPException, Response, APIRouter
 from pydantic import BaseModel
+from fastapi import Depends, HTTPException, Response, APIRouter
 from .. import models, schema
 from ..database import SessionLocal
 from sqlalchemy.orm import Session
@@ -22,9 +22,9 @@ class Post(BaseModel):
     content: str
     published: bool = True
 
-   
 
-@router.get("/", response_model=List[schema.Post])
+# response_model=List[schema.Post]
+@router.get("/")
 def get_posts(db: Session = Depends(get_db)):
     posts = db.query(models.Post).all()
     return {
@@ -32,7 +32,8 @@ def get_posts(db: Session = Depends(get_db)):
     }
 
 
-@router.post("/posts", status_code=201, response_model=schema.Post)
+# response_model=schema.Post
+@router.post("/posts", status_code=201)
 def create_posts(post: schema.PostCreate, db: Session = Depends(get_db)):
     db_post = models.Post(title=post.title, content=post.content)
     db.add(db_post)
@@ -43,7 +44,8 @@ def create_posts(post: schema.PostCreate, db: Session = Depends(get_db)):
     }
 
 
-@router.get("/posts/{id}", response_model=schema.Post)
+# response_model=schema.Post
+@router.get("/posts/{id}")
 def get_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
 
@@ -67,7 +69,8 @@ def delete_post(id: int, db: Session = Depends(get_db)):
     return None
 
 
-@router.put("/posts/{id}", response_model=schema.Post)
+# response_model=schema.Post
+@router.put("/posts/{id}")
 def update_post(id: int, post: schema.PostCreate, db: Session = Depends(get_db)):
 
     post_query = db.query(models.Post).filter(models.Post.id == id)
