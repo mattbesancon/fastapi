@@ -28,7 +28,7 @@ def get_db():
     finally:
         db.close()
 
-# value is not a valid dict
+
 @router.post("/users", status_code=201)
 def create_users(user: schema.UserCreate, db: Session = Depends(get_db)):
     db_user = models.User(email=user.email, password=get_password_hash(user.password))
