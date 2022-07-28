@@ -16,7 +16,7 @@ class Post(PostBase):
     created_at: datetime
 
     class Config:
-        orm_mode: True
+        orm_mode = True
 
 
 class UserBase(BaseModel):
@@ -33,5 +33,5 @@ class User(UserBase):
     created_at: datetime
 
     class Config:
-        orm_mode: True
+        orm_mode = True
 

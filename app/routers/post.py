@@ -17,12 +17,6 @@ def get_db():
         db.close()
 
 
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
-
-
 # response_model=List[schema.Post]
 @router.get("/")
 def get_posts(db: Session = Depends(get_db)):
@@ -70,6 +64,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
 
 # response_model=schema.Post
+# error to investigate: value is not a valid dict
 @router.put("/posts/{id}")
 def update_post(id: int, post: schema.PostCreate, db: Session = Depends(get_db)):
 
@@ -78,7 +73,7 @@ def update_post(id: int, post: schema.PostCreate, db: Session = Depends(get_db))
     if not post_query.first():
         raise HTTPException(status_code=404, detail=f"the post with id {id} does not exist")
 
-    post_query.update(dict(post))
+    post_query.update(**post.dict())
     db.commit()
     return {
         "data": post_query.first()
