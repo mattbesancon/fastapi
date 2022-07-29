@@ -6,7 +6,10 @@ from sqlalchemy.orm import Session
 from typing import List
 
 
-router = APIRouter()
+router = APIRouter(
+    prefix = "/posts",
+    tags = ["Posts"]
+)
 
 
 def get_db():
@@ -27,7 +30,7 @@ def get_posts(db: Session = Depends(get_db)):
 
 
 # response_model=schema.Post
-@router.post("/posts", status_code=201)
+@router.post("/", status_code=201)
 def create_posts(post: schema.PostCreate, db: Session = Depends(get_db)):
     db_post = models.Post(title=post.title, content=post.content)
     db.add(db_post)
@@ -39,7 +42,7 @@ def create_posts(post: schema.PostCreate, db: Session = Depends(get_db)):
 
 
 # response_model=schema.Post
-@router.get("/posts/{id}")
+@router.get("/{id}")
 def get_post(id: int, db: Session = Depends(get_db)):
     post = db.query(models.Post).filter(models.Post.id == id).first()
 
@@ -51,7 +54,7 @@ def get_post(id: int, db: Session = Depends(get_db)):
     }
 
 
-@router.delete("/posts/{id}", status_code=204, response_class=Response)
+@router.delete("/{id}", status_code=204, response_class=Response)
 def delete_post(id: int, db: Session = Depends(get_db)):
     del_post = db.query(models.Post).filter(models.Post.id == id).first()
 
@@ -64,7 +67,7 @@ def delete_post(id: int, db: Session = Depends(get_db)):
 
 
 # response_model=schema.Post
-@router.put("/posts/{id}")
+@router.put("/{id}")
 def update_post(id: int, post: schema.PostCreate, db: Session = Depends(get_db)):
 
     post_query = db.query(models.Post).filter(models.Post.id == id)
