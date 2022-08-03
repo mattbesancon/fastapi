@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status, HTTPException, Response
 from sqlalchemy.orm import Session
 from ..database import SessionLocal
-from .. import schema, models
+from .. import schema, models, oauth2
 from passlib.context import CryptContext
 
 
@@ -39,7 +39,9 @@ def login(user_credentials: schema.UserBase, db: Session = Depends(get_db)):
     if not verify_password(user_credentials.password, user.password):
         raise HTTPException(status_code=404, detail=f"Invalid credentials")
 
+    token = oauth2.create_access_token(data = {"user_id": user.id})
+
     return {
-        "data": user
+        "data": token
     }
 
