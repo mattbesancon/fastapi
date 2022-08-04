@@ -35,10 +35,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     user = db.query(models.User).filter(models.User.email == form_data.username).first()
 
     if not user:
-        raise HTTPException(status_code=404, detail=f"Invalid credentials")
+        raise HTTPException(status_code=403, detail=f"Invalid credentials")
 
     if not verify_password(form_data.password, user.password):
-        raise HTTPException(status_code=404, detail=f"Invalid credentials")
+        raise HTTPException(status_code=403, detail=f"Invalid credentials")
 
     access_token = oauth2.create_access_token(data = {"user_id": user.id})
 
